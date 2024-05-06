@@ -15,11 +15,13 @@ const (
 	ERROR   = "-"
 )
 
+// main object in handling resp data
+// each object only used required properties
 type Value struct {
-	typ   string
-	str   string
-	num   int
-	bulk  string
+	typ   string // type of data
+	str   string // simple string
+	num   int    // numbers
+	bulk  string // data string (main type)
 	array []Value
 }
 
@@ -41,11 +43,13 @@ func (r *Resp) readLine() (line []byte, n int, err error) {
 
 		n += 1
 		line = append(line, b)
+		// checking if found "\r\n" string which indicates end of commad
 		if len(line) >= 2 && line[len(line)-2] == '\r' {
 			break
 		}
 	}
 
+	// removing \r\n at the end of a line
 	return line[:len(line)-2], n, nil
 }
 
@@ -127,6 +131,7 @@ func (r *Resp) readBulk() (Value, error) {
 
 /* Writting Data */
 
+// changing input to resp protocol suitable data
 type Writer struct {
 	writer io.Writer
 }

@@ -9,13 +9,15 @@ import (
 
 func main() {
 
+	// Craete db file or read if it exists
 	aof, err := NewAof("database.aof")
 	if err != nil {
-		fmt.Println("Error saving database: ", err.Error())
+		fmt.Println("Error loading database: ", err.Error())
 		return
 	}
 	defer aof.Close()
 
+	// Read data in saved file
 	aof.Read(func(value Value) {
 		command := strings.ToUpper(value.array[0].bulk)
 		args := value.array[1:]
@@ -29,6 +31,7 @@ func main() {
 		handler(args)
 	})
 
+	// create tcp server
 	l, err := net.Listen("tcp", ":6379")
 	if err != nil {
 		fmt.Println(err)
@@ -43,13 +46,17 @@ func main() {
 	defer conn.Close()
 
 	for {
+		// init redis protocol reader
 		resp := NewResp(conn)
 
+		// read user's input
 		value, err := resp.Read()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
+
+		// checking if input is a command
 
 		if value.typ != "array" {
 			fmt.Println("Invalid request, expected array")
@@ -80,7 +87,9 @@ func main() {
 			aof.Write(value)
 		}
 
+		// command result
 		result := handler(args)
+		// write to static db file
 		writer.Write(result)
 	}
 }

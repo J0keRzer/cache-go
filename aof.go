@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// object controling static db file
 type Aof struct {
 	file *os.File
 	rd   *bufio.Reader
@@ -26,6 +27,7 @@ func NewAof(path string) (*Aof, error) {
 		rd:   bufio.NewReader(f),
 	}
 
+	// function for saving in memory data to file every second
 	go func() {
 		for {
 			aof.mu.Lock()
@@ -62,6 +64,7 @@ func (aof *Aof) Read(load func(Value)) error {
 		return nil
 	}
 
+	// read file
 	var filedata []byte
 	for {
 		b, err := aof.rd.ReadByte()
@@ -76,6 +79,7 @@ func (aof *Aof) Read(load func(Value)) error {
 	}
 
 	// get each prompt
+
 	var matches []string
 
 	last := 0
